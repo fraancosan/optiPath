@@ -1,11 +1,15 @@
 {
   "name": "optipath",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "format": "prettier --write ."
   },
   "devDependencies": {
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "normalize.css": "^8.0.1"
   }
 }

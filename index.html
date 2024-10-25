@@ -3,7 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <meta name="author" content="Franco Nahuel Sanchez" />
+    <link rel="stylesheet" href="styles.css" />
     <title>OptiPath</title>
   </head>
-  <body></body>
+  <body>
+    <main>
+      <h1 class="title">OptiPath</h1>
+      <span class="description">
+        Este proyecto es una demostración visual simple de algoritmos de
+        búsqueda de caminos utilizando múltiples algoritmos.
+      </span>
+      <div class="inputs-container">
+        <div class="size-input">
+          <label for="columns">Columnas</label>
+          <input id="columns" type="number" min="1" max="100" />
+        </div>
+        <div class="size-input">
+          <label for="rows">Filas</label>
+          <input id="rows" type="number" min="1" max="100" />
+        </div>
+        <button id="auto-size-btn" class="btn">Automático</button>
+      </div>
+      <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+      </div>
+      <script src="scripts/main.js" type="module"></script>
+    </main>
+  </body>
 </html>
