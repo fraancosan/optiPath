@@ -139,6 +139,15 @@ function clearGrid() {
   grid = Array.from({ length: rows }, () => Array(cols).fill(0));
 }
 
+function resetGrid() {
+  clearGrid();
+  start = { row: 0, col: 0 };
+  end = { row: rows - 1, col: cols - 1 };
+  grid[start.row][start.col] = 2;
+  grid[end.row][end.col] = 3;
+  drawGrid();
+}
+
 function randomizeGrid() {
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -175,7 +184,7 @@ export {
   changeCols,
   changeRows,
   setMode,
-  clearGrid,
+  resetGrid,
   randomizeGrid,
   rows,
   cols,
