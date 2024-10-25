@@ -1,18 +1,23 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-let start = null;
-let end = null;
+let start = { row: 0, col: 0 };
+let end = { row: null, col: null };
 
 let rows;
 let cols;
+let gridSize;
+let grid;
+
+let mode = 'wall';
+
 autoSize();
 
 function autoSize() {
   const size = window.innerWidth;
   if (size < 400) {
-    cols = 5;
-    rows = 7;
+    cols = 4;
+    rows = 5;
   } else if (size < 600) {
     cols = 5;
     rows = 7;
@@ -26,6 +31,8 @@ function autoSize() {
     cols = 12;
     rows = 6;
   }
+  start = { row: 0, col: 0 };
+  end = { row: rows - 1, col: cols - 1 };
   setGrid();
 }
 
@@ -35,7 +42,7 @@ function setGrid() {
 
   const scale = window.devicePixelRatio;
   const canvasWidth = canvas.parentElement.clientWidth;
-  const gridSize = canvasWidth / cols;
+  gridSize = canvasWidth / cols > 60 ? canvasWidth / cols : 60;
 
   canvas.width = gridSize * cols * scale;
   canvas.height = gridSize * rows * scale;
@@ -44,21 +51,18 @@ function setGrid() {
 
   ctx.scale(scale, scale);
 
-  let grid = Array.from({ length: rows }, () => Array(cols).fill(0));
-
-  drawGrid(grid, gridSize);
+  clearGrid();
 }
 
-function drawGrid(grid, gridSize) {
+function drawGrid() {
   clearScreen();
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const cell = grid[row][col];
-      ctx.fillStyle = cell === 1 ? 'black' : 'white';
-      if (start && start.row === row && start.col === col)
-        ctx.fillStyle = 'green';
-      if (end && end.row === row && end.col === col) ctx.fillStyle = 'red';
+      ctx.fillStyle = cell === 1 ? '#B36206' : 'white';
+      if (start.row === row && start.col === col) ctx.fillStyle = 'green';
+      else if (end.row === row && end.col === col) ctx.fillStyle = '#009ee3';
       ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
       ctx.strokeStyle = '#0c192c';
       ctx.strokeRect(col * gridSize, row * gridSize, gridSize, gridSize);
@@ -85,4 +89,66 @@ function widthChange() {
   setGrid();
 }
 
-export { autoSize, widthChange, changeCols, changeRows, rows, cols };
+function handleCanvasClick(event) {
+  function checkColRow(col, row) {
+    if (start.row === row && start.col === col) {
+      start.row = null;
+      start.col = null;
+    } else if (end.row === row && end.col === col) {
+      end.row = null;
+      end.col = null;
+    }
+  }
+
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  const col = Math.floor(x / gridSize);
+  const row = Math.floor(y / gridSize);
+
+  if (mode === 'start') {
+    if (start.row && start.col) {
+      grid[start.row][start.col] = 0;
+    }
+    checkColRow(col, row);
+    grid[row][col] = 2;
+    start.row = row;
+    start.col = col;
+  } else if (mode === 'end') {
+    if (end.row && end.col) {
+      grid[end.row][end.col] = 0;
+    }
+    checkColRow(col, row);
+    grid[row][col] = 3;
+    end.row = row;
+    end.col = col;
+  } else {
+    checkColRow(col, row);
+    grid[row][col] = grid[row][col] === 1 ? 0 : 1;
+  }
+  drawGrid();
+}
+
+function setMode(newMode) {
+  mode = newMode;
+}
+
+function clearGrid() {
+  // 0 = empty, 1 = wall, 2 = start, 3 = end
+  grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+  drawGrid();
+}
+
+canvas.addEventListener('click', handleCanvasClick);
+
+export {
+  autoSize,
+  widthChange,
+  changeCols,
+  changeRows,
+  setMode,
+  clearGrid,
+  rows,
+  cols,
+};
