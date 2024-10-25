@@ -33,6 +33,7 @@ function autoSize() {
   }
   start = { row: 0, col: 0 };
   end = { row: rows - 1, col: cols - 1 };
+  clearGrid();
   setGrid();
 }
 
@@ -50,8 +51,7 @@ function setGrid() {
   canvas.style.height = `${gridSize * rows}px`;
 
   ctx.scale(scale, scale);
-
-  clearGrid();
+  drawGrid();
 }
 
 function drawGrid() {
@@ -137,10 +137,37 @@ function setMode(newMode) {
 function clearGrid() {
   // 0 = empty, 1 = wall, 2 = start, 3 = end
   grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+}
+
+function randomizeGrid() {
+  function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
+  clearGrid();
+  // 15% chance of a cell being a wall
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      if (Math.random() < 0.15) {
+        grid[i][j] = 1;
+      }
+    }
+  }
+  start.row = getRandomInt(rows);
+  start.col = getRandomInt(cols);
+  let endRow;
+  let endCol;
+  do {
+    endRow = getRandomInt(rows);
+    endCol = getRandomInt(cols);
+  } while (endRow == start.row && endCol == start.col);
+  end = { row: endRow, col: endCol };
+
+  grid[start.row][start.col] = 2;
+  grid[end.row][end.col] = 3;
   drawGrid();
 }
 
-canvas.addEventListener('click', handleCanvasClick);
+canvas.addEventListener('click', (event) => handleCanvasClick(event));
 
 export {
   autoSize,
@@ -149,6 +176,7 @@ export {
   changeRows,
   setMode,
   clearGrid,
+  randomizeGrid,
   rows,
   cols,
 };

@@ -5,6 +5,7 @@ import {
   cols as actualCols,
   autoSize,
   setMode,
+  randomizeGrid,
 } from './canvas.js';
 
 const cols = document.getElementById('columns');
@@ -13,6 +14,7 @@ const autoSizeBtn = document.getElementById('auto-size-btn');
 const setStartBtn = document.getElementById('set-start-btn');
 const setEndBtn = document.getElementById('set-end-btn');
 const setwallsBtn = document.getElementById('set-walls-btn');
+const randomBtn = document.getElementById('random-btn');
 
 export function initializeEventListeners() {
   cols.addEventListener('input', () => {
@@ -50,6 +52,10 @@ export function initializeEventListeners() {
     setMode('wall');
     removeActive();
     setwallsBtn.classList.add('btn-active');
+  });
+
+  randomBtn.addEventListener('click', () => {
+    randomizeGrid();
   });
 }
 
