@@ -13,19 +13,63 @@
       <h1 class="title">OptiPath</h1>
       <span class="description">
         Este proyecto es una demostración visual simple de algoritmos de
-        búsqueda de caminos utilizando múltiples algoritmos.
+        búsqueda de caminos utilizando múltiples algoritmos. <br />
+        Puede establecer el tamaño del tablero, puntos de inicio y fin, insertar
+        paredes y ver cómo los algoritmos encuentran el camino más corto.
       </span>
       <div class="inputs-container">
         <div class="size-input">
           <label for="columns">Columnas</label>
-          <input id="columns" type="number" min="1" max="100" />
+          <input id="columns" type="number" min="2" max="100" />
         </div>
         <div class="size-input">
           <label for="rows">Filas</label>
-          <input id="rows" type="number" min="1" max="100" />
+          <input id="rows" type="number" min="2" max="100" />
         </div>
         <button id="auto-size-btn" class="btn">Automático</button>
       </div>
+      <hr class="line" />
+      <div class="actions-container">
+        <button
+          id="set-start-btn"
+          class="btn btn-set-start"
+          style="grid-area: set-start-btn"
+        >
+          Establecer inicio
+        </button>
+        <button
+          id="set-walls-btn"
+          class="btn btn-active btn-set-walls"
+          style="grid-area: set-walls-btn"
+        >
+          Establecer paredes
+        </button>
+        <button
+          id="set-end-btn"
+          class="btn btn-set-end"
+          style="grid-area: set-end-btn"
+        >
+          Establecer fin
+        </button>
+        <button id="start-btn" class="btn" style="grid-area: start-btn">
+          Iniciar
+        </button>
+        <button
+          id="clear-btn"
+          class="btn btn-danger"
+          style="grid-area: clear-btn"
+        >
+          Limpiar
+        </button>
+        <button
+          id="random-btn"
+          class="btn btn-random"
+          style="grid-area: random-btn"
+        >
+          🎲 Aleatorio
+        </button>
+      </div>
+      <hr class="line" />
       <div class="canvas-container">
         <canvas id="canvas"></canvas>
       </div>
