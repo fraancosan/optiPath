@@ -1,3 +1,5 @@
+import { AHeuristic } from './AHeuristic.js';
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -60,9 +62,19 @@ function drawGrid() {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const cell = grid[row][col];
-      ctx.fillStyle = cell === 1 ? '#B36206' : 'white';
-      if (start.row === row && start.col === col) ctx.fillStyle = 'green';
-      else if (end.row === row && end.col === col) ctx.fillStyle = '#009ee3';
+      // 0 = empty, 1 = wall, 2 = start, 3 = end, 4 = path
+      if (cell === 0) {
+        ctx.fillStyle = 'white';
+      } else if (cell === 1) {
+        ctx.fillStyle = '#B36206';
+      } else if (cell === 2) {
+        ctx.fillStyle = 'green';
+      } else if (cell === 3) {
+        ctx.fillStyle = '#009ee3';
+      } else {
+        ctx.fillStyle = 'yellow';
+      }
+
       ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
       ctx.strokeStyle = '#0c192c';
       ctx.strokeRect(col * gridSize, row * gridSize, gridSize, gridSize);
@@ -137,16 +149,16 @@ function setMode(newMode) {
 }
 
 function clearGrid() {
-  // 0 = empty, 1 = wall, 2 = start, 3 = end
+  // 0 = empty, 1 = wall, 2 = start, 3 = end, 4 = path
   grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+  grid[start.row][start.col] = 2;
+  grid[end.row][end.col] = 3;
 }
 
 function resetGrid() {
-  clearGrid();
   start = { row: 0, col: 0 };
   end = { row: rows - 1, col: cols - 1 };
-  grid[start.row][start.col] = 2;
-  grid[end.row][end.col] = 3;
+  clearGrid();
   drawGrid();
 }
 
@@ -154,15 +166,7 @@ function randomizeGrid() {
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
   }
-  clearGrid();
-  // 15% chance of a cell being a wall
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      if (Math.random() < 0.15) {
-        grid[i][j] = 1;
-      }
-    }
-  }
+
   start.row = getRandomInt(rows);
   start.col = getRandomInt(cols);
   let endRow;
@@ -173,8 +177,34 @@ function randomizeGrid() {
   } while (endRow == start.row && endCol == start.col);
   end = { row: endRow, col: endCol };
 
-  grid[start.row][start.col] = 2;
-  grid[end.row][end.col] = 3;
+  clearGrid();
+  // 15% chance of a cell being a wall
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      if (Math.random() < 0.15 && grid[i][j] === 0) {
+        grid[i][j] = 1;
+      }
+    }
+  }
+  drawGrid();
+}
+
+function startPathFinding(diagonals = false) {
+  const path = new AHeuristic(grid, start, end, diagonals);
+  const pathCells = path.findPath();
+
+  // clean old path
+  grid.forEach((row, rowIndex) => {
+    row.forEach((cell, colIndex) => {
+      if (cell === 4) {
+        grid[rowIndex][colIndex] = 0;
+      }
+    });
+  });
+
+  pathCells.forEach((cell) => {
+    grid[cell.row][cell.col] = 4;
+  });
   drawGrid();
 }
 
@@ -188,6 +218,7 @@ export {
   setMode,
   resetGrid,
   randomizeGrid,
+  startPathFinding,
   rows,
   cols,
 };

@@ -7,8 +7,10 @@ import {
   setMode,
   randomizeGrid,
   resetGrid,
+  startPathFinding,
 } from './canvas.js';
 
+const diagonals = document.getElementById('diagonals');
 const cols = document.getElementById('columns');
 const rows = document.getElementById('rows');
 const autoSizeBtn = document.getElementById('auto-size-btn');
@@ -17,8 +19,13 @@ const setEndBtn = document.getElementById('set-end-btn');
 const setwallsBtn = document.getElementById('set-walls-btn');
 const randomBtn = document.getElementById('random-btn');
 const clearBtn = document.getElementById('clear-btn');
+const startBtn = document.getElementById('start-btn');
 
 export function initializeEventListeners() {
+  startBtn.addEventListener('click', () => {
+    startPathFinding(diagonals.checked);
+  });
+
   cols.addEventListener('input', () => {
     const value = parseInt(cols.value, 10);
     if (!isNaN(value)) {

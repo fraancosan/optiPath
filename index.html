@@ -12,21 +12,28 @@
     <main>
       <h1 class="title">OptiPath</h1>
       <span class="description">
-        Este proyecto es una demostración visual simple de algoritmos de
-        búsqueda de caminos utilizando múltiples algoritmos. <br />
-        Puede establecer el tamaño del tablero, puntos de inicio y fin, insertar
-        paredes y ver cómo los algoritmos encuentran el camino más corto.
+        Este proyecto es una demostración visual simple de cómo funcionan los
+        algoritmos de búsqueda A*. <br />
+        Puede establecer el tamaño del tablero, definir los puntos de inicio y
+        fin, insertar paredes y ver cómo el algoritmo encuentra el camino
+        óptimo.
       </span>
       <div class="inputs-container">
-        <div class="size-input">
+        <div class="input" style="grid-area: diagonals">
+          <label for="diagonals">Permitir diagonales</label>
+          <input id="diagonals" type="checkbox" />
+        </div>
+        <div class="input" style="grid-area: columns">
           <label for="columns">Columnas</label>
           <input id="columns" type="number" min="2" max="100" />
         </div>
-        <div class="size-input">
+        <div class="input" style="grid-area: rows">
           <label for="rows">Filas</label>
           <input id="rows" type="number" min="2" max="100" />
         </div>
-        <button id="auto-size-btn" class="btn">Automático</button>
+        <button id="auto-size-btn" class="btn" style="grid-area: auto">
+          Automático
+        </button>
       </div>
       <hr class="line" />
       <div class="actions-container">
