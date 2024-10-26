@@ -11,14 +11,13 @@
 }
 
 body {
-  padding: 0 16px;
+  min-height: 100dvh;
 }
 
 main {
-  width: 100%;
-  max-width: 1200px;
-  min-height: 100dvh;
+  width: calc(100% - 16px);
   margin: 0 auto;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -206,7 +205,30 @@ main {
   width: 100%;
 }
 
-@media (min-width: 360px) {
+footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  background-color: #363c42;
+  padding: 12px 8px;
+  color: #e5eaf4;
+  font-weight: 400;
+  font-size: 0.9rem;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+footer a {
+  color: #e5eaf4;
+  text-decoration: none;
+  cursor: pointer;
+}
+footer a:hover {
+  text-decoration: underline;
+  color: #f8f8f8;
+}
+
+@media (min-width: 400px) {
   .inputs-container {
     grid-template: 'columns rows' 'diagonals auto';
     grid-template-columns: repeat(2, 1fr);
