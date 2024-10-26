@@ -76,11 +76,13 @@ function clearScreen() {
 
 function changeCols(value) {
   cols = value;
+  resetGrid();
   setGrid();
 }
 
 function changeRows(value) {
   rows = value;
+  resetGrid();
   setGrid();
 }
 
