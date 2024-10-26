@@ -202,9 +202,15 @@ function startPathFinding(diagonals = false) {
     });
   });
 
-  pathCells.forEach((cell) => {
-    grid[cell.row][cell.col] = 4;
-  });
+  if (pathCells.length > 0) {
+    // remove start and end cells from the path
+    pathCells.shift();
+    pathCells.pop();
+
+    pathCells.forEach((cell) => {
+      grid[cell.row][cell.col] = 4;
+    });
+  }
   drawGrid();
 }
 
