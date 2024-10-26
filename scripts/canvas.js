@@ -18,24 +18,20 @@ autoSize();
 
 function autoSize() {
   const size = window.innerWidth;
-  if (size < 400) {
-    cols = 4;
-    rows = 5;
-  } else if (size < 600) {
-    cols = 5;
-    rows = 7;
-  } else if (size < 800) {
-    cols = 8;
-    rows = 7;
-  } else if (size < 1000) {
-    cols = 12;
-    rows = 8;
-  } else if (size < 1200) {
-    cols = 16;
-    rows = 9;
-  } else {
-    cols = 20;
-    rows = 10;
+  const config = {
+    400: { cols: 4, rows: 5 },
+    600: { cols: 5, rows: 7 },
+    800: { cols: 8, rows: 7 },
+    1000: { cols: 12, rows: 8 },
+    1200: { cols: 16, rows: 9 },
+    999999: { cols: 20, rows: 10 },
+  };
+  for (const [key, value] of Object.entries(config)) {
+    if (size < key) {
+      cols = value.cols;
+      rows = value.rows;
+      break;
+    }
   }
   start = { row: 0, col: 0 };
   end = { row: rows - 1, col: cols - 1 };
