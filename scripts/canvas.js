@@ -201,6 +201,14 @@ function randomizeGrid() {
 }
 
 function startPathFinding(diagonals = false) {
+  if (
+    start.row == null ||
+    start.col == null ||
+    end.row == null ||
+    end.col == null
+  ) {
+    return;
+  }
   const pathFinder = new AHeuristic(grid, start, end, diagonals);
   path = pathFinder.findPath();
 
