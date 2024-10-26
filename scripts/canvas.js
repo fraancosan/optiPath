@@ -10,31 +10,30 @@ let rows;
 let cols;
 let gridSize;
 let grid;
+let path = [];
 
+// wall, start, end, wall put, wall remove
 let mode = 'wall';
-
+let holdingMouse = false;
+let isTouchEvent = false;
 autoSize();
 
 function autoSize() {
   const size = window.innerWidth;
-  if (size < 400) {
-    cols = 4;
-    rows = 5;
-  } else if (size < 600) {
-    cols = 5;
-    rows = 7;
-  } else if (size < 800) {
-    cols = 8;
-    rows = 7;
-  } else if (size < 1000) {
-    cols = 12;
-    rows = 8;
-  } else if (size < 1200) {
-    cols = 16;
-    rows = 9;
-  } else {
-    cols = 20;
-    rows = 10;
+  const config = {
+    400: { cols: 4, rows: 5 },
+    600: { cols: 5, rows: 7 },
+    800: { cols: 8, rows: 7 },
+    1000: { cols: 12, rows: 8 },
+    1200: { cols: 16, rows: 9 },
+    999999: { cols: 20, rows: 10 },
+  };
+  for (const [key, value] of Object.entries(config)) {
+    if (size < key) {
+      cols = value.cols;
+      rows = value.rows;
+      break;
+    }
   }
   start = { row: 0, col: 0 };
   end = { row: rows - 1, col: cols - 1 };
@@ -84,6 +83,7 @@ function drawGrid() {
       ctx.strokeRect(col * gridSize, row * gridSize, gridSize, gridSize);
     }
   }
+  drawPath();
 }
 
 function clearScreen() {
@@ -107,43 +107,49 @@ function widthChange() {
   setGrid();
 }
 
-function handleCanvasClick(event) {
-  function checkColRow(col, row) {
-    if (start.row === row && start.col === col) {
-      start.row = null;
-      start.col = null;
-    } else if (end.row === row && end.col === col) {
-      end.row = null;
-      end.col = null;
-    }
-  }
-
+function getCellClicked(event) {
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
 
   const col = Math.floor(x / gridSize);
   const row = Math.floor(y / gridSize);
+  return { row, col };
+}
 
+function handleCanvasClick({ row, col }) {
+  function changeValues(oldCell, newCell, value) {
+    const actualValue = grid[newCell.row][newCell.col];
+    if (actualValue !== 2 && actualValue !== 3) {
+      grid[oldCell.row][oldCell.col] = 0;
+      grid[newCell.row][newCell.col] = value;
+      return true;
+    }
+    return false;
+  }
+  resetPath();
   if (mode === 'start') {
-    if (start.row && start.col) {
-      grid[start.row][start.col] = 0;
-    }
-    checkColRow(col, row);
-    grid[row][col] = 2;
-    start.row = row;
-    start.col = col;
+    const changed = changeValues(start, { row, col }, 2);
+    if (changed) start = { row, col };
   } else if (mode === 'end') {
-    if (end.row && end.col) {
-      grid[end.row][end.col] = 0;
+    const changed = changeValues(end, { row, col }, 3);
+    if (changed) end = { row, col };
+  } else if (mode === 'wall put') {
+    if (grid[row][col] === 0) {
+      grid[row][col] = 1;
     }
-    checkColRow(col, row);
-    grid[row][col] = 3;
-    end.row = row;
-    end.col = col;
-  } else {
-    checkColRow(col, row);
-    grid[row][col] = grid[row][col] === 1 ? 0 : 1;
+  } else if (mode === 'wall remove') {
+    if (grid[row][col] === 1) {
+      grid[row][col] = 0;
+    }
+  }
+  // toggle mode
+  else if (mode === 'wall') {
+    if (grid[row][col] === 0) {
+      grid[row][col] = 1;
+    } else if (grid[row][col] === 1) {
+      grid[row][col] = 0;
+    }
   }
   drawGrid();
 }
@@ -157,6 +163,7 @@ function clearGrid() {
   grid = Array.from({ length: rows }, () => Array(cols).fill(0));
   grid[start.row][start.col] = 2;
   grid[end.row][end.col] = 3;
+  path = []; // no need to call resetPath() here
 }
 
 function resetGrid() {
@@ -164,6 +171,14 @@ function resetGrid() {
   end = { row: rows - 1, col: cols - 1 };
   clearGrid();
   drawGrid();
+}
+
+function resetPath() {
+  const skipCells = path.slice(1, -1);
+  skipCells.forEach((cell) => {
+    grid[cell.row][cell.col] = 0;
+  });
+  path = [];
 }
 
 function randomizeGrid() {
@@ -194,8 +209,16 @@ function randomizeGrid() {
 }
 
 function startPathFinding(diagonals = false) {
-  const path = new AHeuristic(grid, start, end, diagonals);
-  const pathCells = path.findPath();
+  if (
+    start.row == null ||
+    start.col == null ||
+    end.row == null ||
+    end.col == null
+  ) {
+    return;
+  }
+  const pathFinder = new AHeuristic(grid, start, end, diagonals);
+  path = pathFinder.findPath();
 
   // clean old path
   grid.forEach((row, rowIndex) => {
@@ -206,22 +229,21 @@ function startPathFinding(diagonals = false) {
     });
   });
 
-  if (pathCells.length > 0) {
-    const skipCells = pathCells.slice(1, -1);
+  if (path.length > 0) {
+    const skipCells = path.slice(1, -1);
     skipCells.forEach((cell) => {
       grid[cell.row][cell.col] = 4;
     });
   }
   drawGrid();
-  drawPath(pathCells);
 }
 
-function drawPath(pathCells) {
+function drawPath() {
   ctx.beginPath();
   ctx.lineWidth = 3;
   ctx.strokeStyle = 'red';
 
-  pathCells.forEach((cell, index) => {
+  path.forEach((cell, index) => {
     const x = cell.col * gridSize + gridSize / 2;
     const y = cell.row * gridSize + gridSize / 2;
 
@@ -235,7 +257,65 @@ function drawPath(pathCells) {
   ctx.stroke();
 }
 
-canvas.addEventListener('click', (event) => handleCanvasClick(event));
+canvas.addEventListener('touchstart', (event) => {
+  isTouchEvent = true;
+});
+
+canvas.addEventListener('click', (event) => {
+  if (isTouchEvent) {
+    isTouchEvent = false;
+    handleCanvasClick(getCellClicked(event));
+  }
+});
+
+canvas.addEventListener('mousedown', (event) => {
+  if (!isTouchEvent) {
+    let cell = getCellClicked(event);
+    if (mode === 'wall') {
+      holdingMouse = true;
+      if (event.button === 0) {
+        mode = 'wall put';
+      } else if (event.button === 2) {
+        mode = 'wall remove';
+      }
+      handleCanvasClick(cell);
+    } else if (event.button === 0) {
+      holdingMouse = true;
+      handleCanvasClick(cell);
+    }
+  }
+});
+
+canvas.addEventListener('mousemove', (event) => {
+  if (!isTouchEvent) {
+    event.preventDefault();
+    if (holdingMouse) {
+      handleCanvasClick(getCellClicked(event));
+    }
+  }
+});
+
+canvas.addEventListener('mouseup', (event) => {
+  if (!isTouchEvent) {
+    event.preventDefault();
+    holdingMouse = false;
+    if (mode === 'wall put' || mode === 'wall remove') {
+      mode = 'wall';
+    }
+  }
+});
+canvas.addEventListener('mouseleave', (event) => {
+  if (!isTouchEvent) {
+    event.preventDefault();
+    holdingMouse = false;
+    if (mode === 'wall put' || mode === 'wall remove') {
+      mode = 'wall';
+    }
+  }
+});
+canvas.addEventListener('contextmenu', (event) => {
+  event.preventDefault();
+});
 
 export {
   autoSize,
