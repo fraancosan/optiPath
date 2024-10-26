@@ -58,6 +58,7 @@ function setGrid() {
 
 function drawGrid() {
   clearScreen();
+  ctx.lineWidth = 1;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -203,15 +204,32 @@ function startPathFinding(diagonals = false) {
   });
 
   if (pathCells.length > 0) {
-    // remove start and end cells from the path
-    pathCells.shift();
-    pathCells.pop();
-
-    pathCells.forEach((cell) => {
+    const skipCells = pathCells.slice(1, -1);
+    skipCells.forEach((cell) => {
       grid[cell.row][cell.col] = 4;
     });
   }
   drawGrid();
+  drawPath(pathCells);
+}
+
+function drawPath(pathCells) {
+  ctx.beginPath();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'red';
+
+  pathCells.forEach((cell, index) => {
+    const x = cell.col * gridSize + gridSize / 2;
+    const y = cell.row * gridSize + gridSize / 2;
+
+    if (index === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  });
+
+  ctx.stroke();
 }
 
 canvas.addEventListener('click', (event) => handleCanvasClick(event));
