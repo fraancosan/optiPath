@@ -10,6 +10,7 @@ let rows;
 let cols;
 let gridSize;
 let grid;
+let path = [];
 
 let mode = 'wall';
 
@@ -84,6 +85,7 @@ function drawGrid() {
       ctx.strokeRect(col * gridSize, row * gridSize, gridSize, gridSize);
     }
   }
+  drawPath();
 }
 
 function clearScreen() {
@@ -117,7 +119,7 @@ function handleCanvasClick(event) {
       end.col = null;
     }
   }
-
+  resetPath();
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
@@ -126,7 +128,7 @@ function handleCanvasClick(event) {
   const row = Math.floor(y / gridSize);
 
   if (mode === 'start') {
-    if (start.row && start.col) {
+    if (start.row != null && start.col != null) {
       grid[start.row][start.col] = 0;
     }
     checkColRow(col, row);
@@ -134,7 +136,7 @@ function handleCanvasClick(event) {
     start.row = row;
     start.col = col;
   } else if (mode === 'end') {
-    if (end.row && end.col) {
+    if (end.row != null && end.col != null) {
       grid[end.row][end.col] = 0;
     }
     checkColRow(col, row);
@@ -157,6 +159,7 @@ function clearGrid() {
   grid = Array.from({ length: rows }, () => Array(cols).fill(0));
   grid[start.row][start.col] = 2;
   grid[end.row][end.col] = 3;
+  path = []; // no need to call resetPath() here
 }
 
 function resetGrid() {
@@ -164,6 +167,14 @@ function resetGrid() {
   end = { row: rows - 1, col: cols - 1 };
   clearGrid();
   drawGrid();
+}
+
+function resetPath() {
+  const skipCells = path.slice(1, -1);
+  skipCells.forEach((cell) => {
+    grid[cell.row][cell.col] = 0;
+  });
+  path = [];
 }
 
 function randomizeGrid() {
@@ -194,8 +205,8 @@ function randomizeGrid() {
 }
 
 function startPathFinding(diagonals = false) {
-  const path = new AHeuristic(grid, start, end, diagonals);
-  const pathCells = path.findPath();
+  const pathFinder = new AHeuristic(grid, start, end, diagonals);
+  path = pathFinder.findPath();
 
   // clean old path
   grid.forEach((row, rowIndex) => {
@@ -206,22 +217,21 @@ function startPathFinding(diagonals = false) {
     });
   });
 
-  if (pathCells.length > 0) {
-    const skipCells = pathCells.slice(1, -1);
+  if (path.length > 0) {
+    const skipCells = path.slice(1, -1);
     skipCells.forEach((cell) => {
       grid[cell.row][cell.col] = 4;
     });
   }
   drawGrid();
-  drawPath(pathCells);
 }
 
-function drawPath(pathCells) {
+function drawPath() {
   ctx.beginPath();
   ctx.lineWidth = 3;
   ctx.strokeStyle = 'red';
 
-  pathCells.forEach((cell, index) => {
+  path.forEach((cell, index) => {
     const x = cell.col * gridSize + gridSize / 2;
     const y = cell.row * gridSize + gridSize / 2;
 
