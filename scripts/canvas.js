@@ -26,12 +26,15 @@ function autoSize() {
   } else if (size < 800) {
     cols = 8;
     rows = 7;
-  } else if (size < 1200) {
+  } else if (size < 1000) {
     cols = 12;
     rows = 8;
+  } else if (size < 1200) {
+    cols = 16;
+    rows = 9;
   } else {
-    cols = 12;
-    rows = 6;
+    cols = 20;
+    rows = 10;
   }
   start = { row: 0, col: 0 };
   end = { row: rows - 1, col: cols - 1 };
