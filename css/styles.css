@@ -44,6 +44,7 @@ main {
 
 .canvas-container {
   width: 100%;
+  max-height: 80dvh;
   height: auto;
   overflow: auto;
 }
