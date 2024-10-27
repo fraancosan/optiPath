@@ -272,12 +272,13 @@ canvas.addEventListener('mousedown', (event) => {
   if (!isTouchEvent) {
     let cell = getCellClicked(event);
     if (mode === 'wall') {
-      holdingMouse = true;
       if (event.button === 0) {
         mode = 'wall put';
+        holdingMouse = true;
         handleCanvasClick(cell);
       } else if (event.button === 2) {
         mode = 'wall remove';
+        holdingMouse = true;
         handleCanvasClick(cell);
       }
     } else if (event.button === 0) {
